@@ -215,6 +215,7 @@ namespace v2rayN.Mode
         public int alterId { get; set; }
         /// <summary>
         /// 本地安全策略
+        /// none,cfb,gcm,chacha20
         /// </summary>
         public string security { get; set; }
         /// <summary>
@@ -228,6 +229,7 @@ namespace v2rayN.Mode
 
         /// <summary>
         /// 伪装类型
+        /// none,http,srtp,utp,wechat-video
         /// </summary>
         public string headerType { get; set; }
 
@@ -238,6 +240,7 @@ namespace v2rayN.Mode
 
         /// <summary>
         /// 底层传输安全
+        /// none,tls
         /// </summary>
         public string streamSecurity { get; set; }
 

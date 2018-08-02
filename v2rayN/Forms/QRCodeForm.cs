@@ -34,13 +34,15 @@ namespace v2rayN.Forms
         {
             if (Index >= 0)
             {
-                VmessQRCode vmessQRCode = null;
-                if (ConfigHandler.GetVmessQRCode(config, Index, ref vmessQRCode) != 0)
-                {
-                    return;
-                }
-                string url = Utils.ToJson(vmessQRCode);
-                url = Utils.Base64Encode(url);
+                //VmessQRCode vmessQRCode = null;
+                //if (ConfigHandler.GetVmessQRCode(config, Index, ref vmessQRCode) != 0)
+                //{
+                //    return;
+                //}
+                //string url = Utils.ToJson(vmessQRCode);
+                byte[] BS = Utils.ToByteStream(config, Index);
+                string url = Convert.ToBase64String(BS);
+                //url = Utils.Base64Encode(url);
                 url = string.Format("{0}{1}", Global.vmessProtocol, url);
                 picQRCode.Image = QRCodeHelper.GetQRCode(url);
                 txtUrl.Text = url;

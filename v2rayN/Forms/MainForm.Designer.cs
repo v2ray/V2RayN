@@ -77,7 +77,6 @@
             this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
             this.tsbReload = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator7 = new System.Windows.Forms.ToolStripSeparator();
-            this.tsbClose = new System.Windows.Forms.ToolStripButton();
             this.cmsMain.SuspendLayout();
             this.cmsLv.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -113,12 +112,12 @@
             this.cmsMain.RenderMode = System.Windows.Forms.ToolStripRenderMode.System;
             this.cmsMain.ShowCheckMargin = true;
             this.cmsMain.ShowImageMargin = false;
-            this.cmsMain.Size = new System.Drawing.Size(197, 214);
+            this.cmsMain.Size = new System.Drawing.Size(239, 208);
             // 
             // menuSysAgentEnabled
             // 
             this.menuSysAgentEnabled.Name = "menuSysAgentEnabled";
-            this.menuSysAgentEnabled.Size = new System.Drawing.Size(196, 22);
+            this.menuSysAgentEnabled.Size = new System.Drawing.Size(238, 24);
             this.menuSysAgentEnabled.Text = "启用系统代理";
             this.menuSysAgentEnabled.Click += new System.EventHandler(this.menuSysAgentEnabled_Click);
             // 
@@ -130,83 +129,83 @@
             this.toolStripMenuItem2,
             this.menuKeep});
             this.menuSysAgentMode.Name = "menuSysAgentMode";
-            this.menuSysAgentMode.Size = new System.Drawing.Size(196, 22);
+            this.menuSysAgentMode.Size = new System.Drawing.Size(238, 24);
             this.menuSysAgentMode.Text = "系统代理模式";
             // 
             // menuGlobal
             // 
             this.menuGlobal.Name = "menuGlobal";
-            this.menuGlobal.Size = new System.Drawing.Size(178, 22);
+            this.menuGlobal.Size = new System.Drawing.Size(219, 26);
             this.menuGlobal.Text = "全局模式";
             this.menuGlobal.Click += new System.EventHandler(this.menuGlobal_Click);
             // 
             // menuPAC
             // 
             this.menuPAC.Name = "menuPAC";
-            this.menuPAC.Size = new System.Drawing.Size(178, 22);
+            this.menuPAC.Size = new System.Drawing.Size(219, 26);
             this.menuPAC.Text = "PAC模式";
             this.menuPAC.Click += new System.EventHandler(this.menuPAC_Click);
             // 
             // toolStripMenuItem2
             // 
             this.toolStripMenuItem2.Name = "toolStripMenuItem2";
-            this.toolStripMenuItem2.Size = new System.Drawing.Size(175, 6);
+            this.toolStripMenuItem2.Size = new System.Drawing.Size(216, 6);
             // 
             // menuKeep
             // 
             this.menuKeep.Name = "menuKeep";
-            this.menuKeep.Size = new System.Drawing.Size(178, 22);
+            this.menuKeep.Size = new System.Drawing.Size(219, 26);
             this.menuKeep.Text = "保持当前模式不变更";
             this.menuKeep.Click += new System.EventHandler(this.menuKeep_Click);
             // 
             // menuServers
             // 
             this.menuServers.Name = "menuServers";
-            this.menuServers.Size = new System.Drawing.Size(196, 22);
+            this.menuServers.Size = new System.Drawing.Size(238, 24);
             this.menuServers.Text = "服务器";
             // 
             // menuUpdatePACList
             // 
             this.menuUpdatePACList.Name = "menuUpdatePACList";
-            this.menuUpdatePACList.Size = new System.Drawing.Size(196, 22);
+            this.menuUpdatePACList.Size = new System.Drawing.Size(238, 24);
             this.menuUpdatePACList.Text = "更新PAC(需要系统代理)";
             this.menuUpdatePACList.Click += new System.EventHandler(this.menuUpdatePACList_Click);
             // 
             // menuCopyPACUrl
             // 
             this.menuCopyPACUrl.Name = "menuCopyPACUrl";
-            this.menuCopyPACUrl.Size = new System.Drawing.Size(196, 22);
+            this.menuCopyPACUrl.Size = new System.Drawing.Size(238, 24);
             this.menuCopyPACUrl.Text = "复制本地PAC网址";
             this.menuCopyPACUrl.Click += new System.EventHandler(this.menuCopyPACUrl_Click);
             // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(193, 6);
+            this.toolStripSeparator2.Size = new System.Drawing.Size(235, 6);
             // 
             // menuUpdate
             // 
             this.menuUpdate.Name = "menuUpdate";
-            this.menuUpdate.Size = new System.Drawing.Size(196, 22);
+            this.menuUpdate.Size = new System.Drawing.Size(238, 24);
             this.menuUpdate.Text = "检查更新";
             this.menuUpdate.Click += new System.EventHandler(this.menuUpdate_Click);
             // 
             // menuAbout
             // 
             this.menuAbout.Name = "menuAbout";
-            this.menuAbout.Size = new System.Drawing.Size(196, 22);
+            this.menuAbout.Size = new System.Drawing.Size(238, 24);
             this.menuAbout.Text = "关于";
             this.menuAbout.Click += new System.EventHandler(this.menuAbout_Click);
             // 
             // toolStripSeparator8
             // 
             this.toolStripSeparator8.Name = "toolStripSeparator8";
-            this.toolStripSeparator8.Size = new System.Drawing.Size(193, 6);
+            this.toolStripSeparator8.Size = new System.Drawing.Size(235, 6);
             // 
             // menuExit
             // 
             this.menuExit.Name = "menuExit";
-            this.menuExit.Size = new System.Drawing.Size(196, 22);
+            this.menuExit.Size = new System.Drawing.Size(238, 24);
             this.menuExit.Text = "退出";
             this.menuExit.Click += new System.EventHandler(this.menuExit_Click);
             // 
@@ -237,104 +236,104 @@
             this.menuShareQRCode});
             this.cmsLv.Name = "cmsLv";
             this.cmsLv.OwnerItem = this.tsbServer;
-            this.cmsLv.Size = new System.Drawing.Size(227, 286);
+            this.cmsLv.Size = new System.Drawing.Size(274, 338);
             // 
             // menuAddServer
             // 
             this.menuAddServer.Name = "menuAddServer";
-            this.menuAddServer.Size = new System.Drawing.Size(226, 22);
+            this.menuAddServer.Size = new System.Drawing.Size(273, 24);
             this.menuAddServer.Text = "添加一个服务器";
             this.menuAddServer.Click += new System.EventHandler(this.menuAddServer_Click);
             // 
             // menuRemoveServer
             // 
             this.menuRemoveServer.Name = "menuRemoveServer";
-            this.menuRemoveServer.Size = new System.Drawing.Size(226, 22);
+            this.menuRemoveServer.Size = new System.Drawing.Size(273, 24);
             this.menuRemoveServer.Text = "移除所选服务器";
             this.menuRemoveServer.Click += new System.EventHandler(this.menuRemoveServer_Click);
             // 
             // menuCopyServer
             // 
             this.menuCopyServer.Name = "menuCopyServer";
-            this.menuCopyServer.Size = new System.Drawing.Size(226, 22);
+            this.menuCopyServer.Size = new System.Drawing.Size(273, 24);
             this.menuCopyServer.Text = "复制所选服务器";
             this.menuCopyServer.Click += new System.EventHandler(this.menuCopyServer_Click);
             // 
             // menuSetDefaultServer
             // 
             this.menuSetDefaultServer.Name = "menuSetDefaultServer";
-            this.menuSetDefaultServer.Size = new System.Drawing.Size(226, 22);
+            this.menuSetDefaultServer.Size = new System.Drawing.Size(273, 24);
             this.menuSetDefaultServer.Text = "设为活动服务器";
             this.menuSetDefaultServer.Click += new System.EventHandler(this.menuSetDefaultServer_Click);
             // 
             // toolStripSeparator3
             // 
             this.toolStripSeparator3.Name = "toolStripSeparator3";
-            this.toolStripSeparator3.Size = new System.Drawing.Size(223, 6);
+            this.toolStripSeparator3.Size = new System.Drawing.Size(270, 6);
             // 
             // menuMoveTop
             // 
             this.menuMoveTop.Name = "menuMoveTop";
-            this.menuMoveTop.Size = new System.Drawing.Size(226, 22);
+            this.menuMoveTop.Size = new System.Drawing.Size(273, 24);
             this.menuMoveTop.Text = "上移至顶";
             this.menuMoveTop.Click += new System.EventHandler(this.menuMoveTop_Click);
             // 
             // menuMoveUp
             // 
             this.menuMoveUp.Name = "menuMoveUp";
-            this.menuMoveUp.Size = new System.Drawing.Size(226, 22);
+            this.menuMoveUp.Size = new System.Drawing.Size(273, 24);
             this.menuMoveUp.Text = "上移";
             this.menuMoveUp.Click += new System.EventHandler(this.menuMoveUp_Click);
             // 
             // menuMoveDown
             // 
             this.menuMoveDown.Name = "menuMoveDown";
-            this.menuMoveDown.Size = new System.Drawing.Size(226, 22);
+            this.menuMoveDown.Size = new System.Drawing.Size(273, 24);
             this.menuMoveDown.Text = "下移";
             this.menuMoveDown.Click += new System.EventHandler(this.menuMoveDown_Click);
             // 
             // menuMoveBottom
             // 
             this.menuMoveBottom.Name = "menuMoveBottom";
-            this.menuMoveBottom.Size = new System.Drawing.Size(226, 22);
+            this.menuMoveBottom.Size = new System.Drawing.Size(273, 24);
             this.menuMoveBottom.Text = "下移至底";
             this.menuMoveBottom.Click += new System.EventHandler(this.menuMoveBottom_Click);
             // 
             // toolStripSeparator9
             // 
             this.toolStripSeparator9.Name = "toolStripSeparator9";
-            this.toolStripSeparator9.Size = new System.Drawing.Size(223, 6);
+            this.toolStripSeparator9.Size = new System.Drawing.Size(270, 6);
             // 
             // menuPingServer
             // 
             this.menuPingServer.Name = "menuPingServer";
-            this.menuPingServer.Size = new System.Drawing.Size(226, 22);
+            this.menuPingServer.Size = new System.Drawing.Size(273, 24);
             this.menuPingServer.Text = "测试服务器延迟";
             this.menuPingServer.Click += new System.EventHandler(this.menuPingServer_Click);
             // 
             // toolStripSeparator6
             // 
             this.toolStripSeparator6.Name = "toolStripSeparator6";
-            this.toolStripSeparator6.Size = new System.Drawing.Size(223, 6);
+            this.toolStripSeparator6.Size = new System.Drawing.Size(270, 6);
             // 
             // menuExport2ClientConfig
             // 
             this.menuExport2ClientConfig.Name = "menuExport2ClientConfig";
-            this.menuExport2ClientConfig.Size = new System.Drawing.Size(226, 22);
+            this.menuExport2ClientConfig.Size = new System.Drawing.Size(273, 24);
             this.menuExport2ClientConfig.Text = "导出所选服务器为客户端配置";
             this.menuExport2ClientConfig.Click += new System.EventHandler(this.menuExport2ClientConfig_Click);
             // 
             // menuExport2ServerConfig
             // 
             this.menuExport2ServerConfig.Name = "menuExport2ServerConfig";
-            this.menuExport2ServerConfig.Size = new System.Drawing.Size(226, 22);
+            this.menuExport2ServerConfig.Size = new System.Drawing.Size(273, 24);
             this.menuExport2ServerConfig.Text = "导出所选服务器为服务端配置";
             this.menuExport2ServerConfig.Click += new System.EventHandler(this.menuExport2ServerConfig_Click);
             // 
             // menuShareQRCode
             // 
             this.menuShareQRCode.Name = "menuShareQRCode";
-            this.menuShareQRCode.Size = new System.Drawing.Size(226, 22);
+            this.menuShareQRCode.Size = new System.Drawing.Size(273, 24);
             this.menuShareQRCode.Text = "分享服务器配置";
             this.menuShareQRCode.Click += new System.EventHandler(this.menuShareQRCode_Click);
             // 
@@ -344,7 +343,7 @@
             this.tsbServer.Image = global::v2rayN.Properties.Resources.server;
             this.tsbServer.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbServer.Name = "tsbServer";
-            this.tsbServer.Size = new System.Drawing.Size(78, 48);
+            this.tsbServer.Size = new System.Drawing.Size(84, 56);
             this.tsbServer.Text = "  服务器  ";
             this.tsbServer.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
             // 
@@ -352,9 +351,11 @@
             // 
             this.groupBox2.Controls.Add(this.txtMsgBox);
             this.groupBox2.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.groupBox2.Location = new System.Drawing.Point(0, 451);
+            this.groupBox2.Location = new System.Drawing.Point(0, 601);
+            this.groupBox2.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(893, 176);
+            this.groupBox2.Padding = new System.Windows.Forms.Padding(4);
+            this.groupBox2.Size = new System.Drawing.Size(1191, 235);
             this.groupBox2.TabIndex = 4;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "信息";
@@ -366,13 +367,14 @@
             this.txtMsgBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtMsgBox.Font = new System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtMsgBox.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(226)))), ((int)(((byte)(228)))));
-            this.txtMsgBox.Location = new System.Drawing.Point(3, 17);
+            this.txtMsgBox.Location = new System.Drawing.Point(4, 19);
+            this.txtMsgBox.Margin = new System.Windows.Forms.Padding(4);
             this.txtMsgBox.MaxLength = 0;
             this.txtMsgBox.Multiline = true;
             this.txtMsgBox.Name = "txtMsgBox";
             this.txtMsgBox.ReadOnly = true;
             this.txtMsgBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.txtMsgBox.Size = new System.Drawing.Size(887, 156);
+            this.txtMsgBox.Size = new System.Drawing.Size(1183, 212);
             this.txtMsgBox.TabIndex = 2;
             // 
             // groupBox1
@@ -380,9 +382,11 @@
             this.groupBox1.Controls.Add(this.lvServers);
             this.groupBox1.Controls.Add(this.dataGridView1);
             this.groupBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.groupBox1.Location = new System.Drawing.Point(0, 61);
+            this.groupBox1.Location = new System.Drawing.Point(0, 72);
+            this.groupBox1.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(893, 390);
+            this.groupBox1.Padding = new System.Windows.Forms.Padding(4);
+            this.groupBox1.Size = new System.Drawing.Size(1191, 529);
             this.groupBox1.TabIndex = 2;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "服务器列表";
@@ -396,10 +400,11 @@
             this.lvServers.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
             this.lvServers.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
             listViewItem1});
-            this.lvServers.Location = new System.Drawing.Point(3, 17);
+            this.lvServers.Location = new System.Drawing.Point(4, 19);
+            this.lvServers.Margin = new System.Windows.Forms.Padding(4);
             this.lvServers.Name = "lvServers";
             this.lvServers.ShowGroups = false;
-            this.lvServers.Size = new System.Drawing.Size(887, 370);
+            this.lvServers.Size = new System.Drawing.Size(1183, 506);
             this.lvServers.TabIndex = 1;
             this.lvServers.UseCompatibleStateImageBehavior = false;
             this.lvServers.View = System.Windows.Forms.View.Details;
@@ -409,18 +414,20 @@
             // 
             this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridView1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dataGridView1.Location = new System.Drawing.Point(3, 17);
+            this.dataGridView1.Location = new System.Drawing.Point(4, 19);
+            this.dataGridView1.Margin = new System.Windows.Forms.Padding(4);
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.RowTemplate.Height = 23;
-            this.dataGridView1.Size = new System.Drawing.Size(887, 370);
+            this.dataGridView1.Size = new System.Drawing.Size(1183, 506);
             this.dataGridView1.TabIndex = 0;
             // 
             // panel1
             // 
             this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panel1.Location = new System.Drawing.Point(0, 51);
+            this.panel1.Location = new System.Drawing.Point(0, 59);
+            this.panel1.Margin = new System.Windows.Forms.Padding(4);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(893, 10);
+            this.panel1.Size = new System.Drawing.Size(1191, 13);
             this.panel1.TabIndex = 5;
             // 
             // tsMain
@@ -432,24 +439,23 @@
             this.tsbOptionSetting,
             this.toolStripSeparator5,
             this.tsbReload,
-            this.toolStripSeparator7,
-            this.tsbClose});
+            this.toolStripSeparator7});
             this.tsMain.Location = new System.Drawing.Point(0, 0);
             this.tsMain.Name = "tsMain";
-            this.tsMain.Size = new System.Drawing.Size(893, 51);
+            this.tsMain.Size = new System.Drawing.Size(1191, 59);
             this.tsMain.TabIndex = 6;
             // 
             // toolStripSeparator4
             // 
             this.toolStripSeparator4.Name = "toolStripSeparator4";
-            this.toolStripSeparator4.Size = new System.Drawing.Size(6, 51);
+            this.toolStripSeparator4.Size = new System.Drawing.Size(6, 59);
             // 
             // tsbOptionSetting
             // 
             this.tsbOptionSetting.Image = global::v2rayN.Properties.Resources.option;
             this.tsbOptionSetting.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbOptionSetting.Name = "tsbOptionSetting";
-            this.tsbOptionSetting.Size = new System.Drawing.Size(81, 48);
+            this.tsbOptionSetting.Size = new System.Drawing.Size(89, 56);
             this.tsbOptionSetting.Text = "  参数设置  ";
             this.tsbOptionSetting.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
             this.tsbOptionSetting.Click += new System.EventHandler(this.tsbOptionSetting_Click);
@@ -457,7 +463,7 @@
             // toolStripSeparator5
             // 
             this.toolStripSeparator5.Name = "toolStripSeparator5";
-            this.toolStripSeparator5.Size = new System.Drawing.Size(6, 51);
+            this.toolStripSeparator5.Size = new System.Drawing.Size(6, 59);
             // 
             // tsbReload
             // 
@@ -465,7 +471,7 @@
             this.tsbReload.ImageAlign = System.Drawing.ContentAlignment.BottomCenter;
             this.tsbReload.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbReload.Name = "tsbReload";
-            this.tsbReload.Size = new System.Drawing.Size(81, 48);
+            this.tsbReload.Size = new System.Drawing.Size(89, 56);
             this.tsbReload.Text = "  重启服务  ";
             this.tsbReload.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
             this.tsbReload.Click += new System.EventHandler(this.tsbReload_Click);
@@ -473,28 +479,18 @@
             // toolStripSeparator7
             // 
             this.toolStripSeparator7.Name = "toolStripSeparator7";
-            this.toolStripSeparator7.Size = new System.Drawing.Size(6, 51);
-            // 
-            // tsbClose
-            // 
-            this.tsbClose.Image = ((System.Drawing.Image)(resources.GetObject("tsbClose.Image")));
-            this.tsbClose.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsbClose.Name = "tsbClose";
-            this.tsbClose.Size = new System.Drawing.Size(69, 48);
-            this.tsbClose.Text = "  最小化  ";
-            this.tsbClose.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
-            this.tsbClose.Click += new System.EventHandler(this.tsbClose_Click);
+            this.toolStripSeparator7.Size = new System.Drawing.Size(6, 59);
             // 
             // MainForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(893, 627);
+            this.ClientSize = new System.Drawing.Size(1191, 836);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.tsMain);
-            this.Margin = new System.Windows.Forms.Padding(4);
+            this.Margin = new System.Windows.Forms.Padding(5);
             this.MaximizeBox = true;
             this.MinimizeBox = true;
             this.Name = "MainForm";
@@ -544,7 +540,6 @@
         private System.Windows.Forms.ToolStripDropDownButton tsbServer;
         private System.Windows.Forms.ToolStripButton tsbOptionSetting;
         private System.Windows.Forms.ToolStripButton tsbReload;
-        private System.Windows.Forms.ToolStripButton tsbClose;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator6;

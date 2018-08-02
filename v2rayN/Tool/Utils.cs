@@ -11,7 +11,8 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
-
+using v2rayN.Mode;
+using v2rayN.Tool;
 namespace v2rayN
 {
     class Utils
@@ -510,8 +511,23 @@ namespace v2rayN
             }
             return string.Empty;
         }
-        
+
         #endregion
+
+
+
+        /// <summary>
+        /// 取得字节流
+        /// </summary>
+        /// <returns></returns>
+        public static byte[] ToByteStream(Config config, int Index)
+        {
+            VmessItem vmessItem = config.vmess[Index];
+            List<byte> ByteStream = new List<byte>();
+            ByteStreamConverter.vItem2Bs(ref ByteStream, vmessItem);
+            return ByteStream.ToArray();
+        }
+
 
         #region TempPath
 
