@@ -22,7 +22,7 @@ namespace v2rayN.Forms
             }
             else
             {
-                ClearServer();
+                NewServer();
             }
         }
 
@@ -50,7 +50,7 @@ namespace v2rayN.Forms
         /// <summary>
         /// 清除设置
         /// </summary>
-        private void ClearServer()
+        private void NewServer()
         {
             txtAddress.Text = "";
             txtPort.Text = "";
@@ -195,7 +195,7 @@ namespace v2rayN.Forms
 
         private void MenuItemImport(int type)
         {
-            ClearServer();
+            NewServer();
 
             OpenFileDialog fileDialog = new OpenFileDialog();
             fileDialog.Multiselect = false;
@@ -243,7 +243,7 @@ namespace v2rayN.Forms
         /// <param name="e"></param>
         private void MenuItemImportClipboard_Click(object sender, EventArgs e)
         {
-            ClearServer();
+            NewServer();
 
             string msg;
             VmessItem vmessItem = V2rayConfigHandler.ImportFromClipboardConfig(out msg);
@@ -257,7 +257,8 @@ namespace v2rayN.Forms
             txtPort.Text = vmessItem.port.ToString();
             txtId.Text = vmessItem.id;
             txtAlterId.Text = vmessItem.alterId.ToString();
-            txtRemarks.Text = vmessItem.remarks;
+            //txtRemarks.Text = vmessItem.remarks;
+            cmbSecurity.Text = vmessItem.security;
             cmbNetwork.Text = vmessItem.network;
             cmbHeaderType.Text = vmessItem.headerType;
             txtRequestHost.Text = vmessItem.requestHost;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using v2rayN.Mode;
+using v2rayN.Tool;
 
 namespace v2rayN.Handler
 {
@@ -752,8 +753,8 @@ namespace v2rayN.Handler
             msg = string.Empty;
             VmessItem vmessItem = new VmessItem();
 
-            try
-            {
+            //try
+            //{
                 //载入配置文件 
                 string result = Utils.GetClipboardData();
                 if (Utils.IsNullOrEmpty(result))
@@ -767,36 +768,27 @@ namespace v2rayN.Handler
                     return null;
                 }
                 result = result.Substring(Global.vmessProtocol.Length);
+
                 //解码
-                result = Utils.Base64Decode(result);
-
+                //result = Utils.Base64Decode(result);
+                byte[] Bytestream = Convert.FromBase64String(result);
+                ByteStreamInverter.Bs2vItem(ref Bytestream, vmessItem);
+                
                 //转成Json
-                VmessQRCode vmessQRCode = Utils.FromJson<VmessQRCode>(result);
-                if (vmessQRCode == null)
-                {
-                    msg = "转换配置文件失败";
-                    return null;
-                }
+                //VmessQRCode vmessQRCode = Utils.FromJson<VmessQRCode>(result);
+                //if (vmessQRCode == null)
+                //{
+                //    msg = "转换配置文件失败";
+                //    return null;
+                //}
 
-                vmessItem.security = Global.DefaultSecurity;
-                vmessItem.network = Global.DefaultNetwork;
-                vmessItem.headerType = Global.None;
-
-                vmessItem.remarks = vmessQRCode.ps;
-                vmessItem.address = vmessQRCode.add;
-                vmessItem.port = Convert.ToInt32(vmessQRCode.port);
-                vmessItem.id = vmessQRCode.id;
-                vmessItem.alterId = Convert.ToInt32(vmessQRCode.aid);
-                vmessItem.network = vmessQRCode.net;
-                vmessItem.headerType = vmessQRCode.type;
-                vmessItem.requestHost = vmessQRCode.host;
-                vmessItem.streamSecurity = vmessQRCode.tls;
-            }
-            catch
-            {
-                msg = "异常，不是正确的客户端配置文件，请检查";
-                return null;
-            }
+                
+            //}
+            //catch
+            //{
+            //    msg = "异常，不是正确的客户端配置文件，请检查";
+            //    return null;
+            //}
 
             return vmessItem;
         }

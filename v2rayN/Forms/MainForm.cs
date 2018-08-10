@@ -533,7 +533,14 @@ namespace v2rayN.Forms
         {
             if (e.Button == System.Windows.Forms.MouseButtons.Left)
             {
-                ShowForm();
+                if (this.Visible == false)
+                {
+                    ShowForm();
+                }
+                else
+                {
+                    this.Hide();
+                }
             }
         }
 
