@@ -40,7 +40,7 @@ namespace v2rayN.Forms
                 //    return;
                 //}
                 //string url = Utils.ToJson(vmessQRCode);
-                byte[] BS = Utils.ToByteStream(config, Index);
+                byte[] BS = Utils.vItem2ByteStream(config, Index);
                 string url = Convert.ToBase64String(BS);
                 //url = Utils.Base64Encode(url);
                 url = string.Format("{0}{1}", Global.vmessProtocol, url);

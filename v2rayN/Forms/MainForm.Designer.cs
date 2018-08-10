@@ -91,7 +91,7 @@
             this.notifyMain.Icon = ((System.Drawing.Icon)(resources.GetObject("notifyMain.Icon")));
             this.notifyMain.Text = "v2rayN";
             this.notifyMain.Visible = true;
-            this.notifyMain.MouseClick += new System.Windows.Forms.MouseEventHandler(this.notifyMain_MouseClick);
+            this.notifyMain.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.notifyMain_MouseClick);
             // 
             // cmsMain
             // 
@@ -236,7 +236,7 @@
             this.menuShareQRCode});
             this.cmsLv.Name = "cmsLv";
             this.cmsLv.OwnerItem = this.tsbServer;
-            this.cmsLv.Size = new System.Drawing.Size(274, 338);
+            this.cmsLv.Size = new System.Drawing.Size(274, 310);
             // 
             // menuAddServer
             // 

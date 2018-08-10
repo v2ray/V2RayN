@@ -1,0 +1,45 @@
+{
+  "inbound": [
+    {
+      "localPort": 1080,
+      "protocol": "socks",
+      "udpEnabled": true
+    }
+  ],
+  "logEnabled": false,
+  "loglevel": "warning",
+  "index": 0,
+  "vmess": [
+    {
+      "address": "zangai.family",
+      "port": 443,
+      "id": "cba2223a-d921-453f-825f-43d6dffface7",
+      "alterId": 64,
+      "security": "aes-128-gcm",
+      "network": "ws",
+      "remarks": "",
+      "headerType": "none",
+      "requestHost": "/admin",
+      "streamSecurity": "tls"
+    }
+  ],
+  "muxEnabled": true,
+  "chinasites": false,
+  "chinaip": false,
+  "useragent": [],
+  "userdirect": [],
+  "userblock": [],
+  "kcpItem": {
+    "mtu": 1350,
+    "tti": 50,
+    "uplinkCapacity": 12,
+    "downlinkCapacity": 100,
+    "congestion": false,
+    "readBufferSize": 2,
+    "writeBufferSize": 2
+  },
+  "autoSyncTime": false,
+  "sysAgentEnabled": true,
+  "listenerType": 1,
+  "urlGFWList": null
+}

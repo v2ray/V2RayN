@@ -257,7 +257,8 @@ namespace v2rayN.Forms
             txtPort.Text = vmessItem.port.ToString();
             txtId.Text = vmessItem.id;
             txtAlterId.Text = vmessItem.alterId.ToString();
-            txtRemarks.Text = vmessItem.remarks;
+            //txtRemarks.Text = vmessItem.remarks;
+            cmbSecurity.Text = vmessItem.security;
             cmbNetwork.Text = vmessItem.network;
             cmbHeaderType.Text = vmessItem.headerType;
             txtRequestHost.Text = vmessItem.requestHost;

@@ -520,11 +520,11 @@ namespace v2rayN
         /// 取得字节流
         /// </summary>
         /// <returns></returns>
-        public static byte[] ToByteStream(Config config, int Index)
+        public static byte[] vItem2ByteStream(Config config, int Index)
         {
             VmessItem vmessItem = config.vmess[Index];
             List<byte> ByteStream = new List<byte>();
-            ByteStreamConverter.vItem2Bs(ref ByteStream, vmessItem);
+            ByteStreamRegulator.vItem2Bs(ref ByteStream, vmessItem);
             return ByteStream.ToArray();
         }
 
