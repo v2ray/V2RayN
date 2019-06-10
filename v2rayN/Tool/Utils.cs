@@ -5,19 +5,25 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
+using System.Net;
 using System.Net.NetworkInformation;
+using System.Net.Sockets;
 using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using System.Drawing;
+using ZXing;
+using ZXing.Common;
+using ZXing.QrCode;
+using v2rayN.Handler;
 
 namespace v2rayN
 {
     class Utils
     {
-        private static string autoRunName = "v2rayNAutoRun";
-        private static string autoRunRegPath = @"Software\Microsoft\Windows\CurrentVersion\Run";
+
 
         #region 资源Json操作
 
@@ -142,11 +148,18 @@ namespace v2rayN
         /// </summary>
         /// <param name="lst"></param>
         /// <returns></returns>
-        public static string List2String(List<string> lst)
+        public static string List2String(List<string> lst, bool wrap = false)
         {
             try
             {
-                return string.Join(",", lst.ToArray());
+                if (wrap)
+                {
+                    return string.Join(",\r\n", lst.ToArray());
+                }
+                else
+                {
+                    return string.Join(",", lst.ToArray());
+                }
             }
             catch
             {
@@ -162,6 +175,7 @@ namespace v2rayN
         {
             try
             {
+                str = str.Replace("\r\n", "");
                 return new List<string>(str.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries));
             }
             catch
@@ -182,8 +196,9 @@ namespace v2rayN
                 var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(plainText);
                 return Convert.ToBase64String(plainTextBytes);
             }
-            catch
+            catch (Exception ex)
             {
+                SaveLog("Base64Encode", ex);
                 return string.Empty;
             }
         }
@@ -197,12 +212,41 @@ namespace v2rayN
         {
             try
             {
+                plainText = plainText.Trim()
+                  .Replace("\n", "")
+                  .Replace("\r\n", "")
+                  .Replace("\r", "")
+                  .Replace(" ", "");
+
+                if (plainText.Length % 4 > 0)
+                {
+                    plainText = plainText.PadRight(plainText.Length + 4 - plainText.Length % 4, '=');
+                }
+
                 byte[] data = Convert.FromBase64String(plainText);
                 return Encoding.UTF8.GetString(data);
             }
+            catch (Exception ex)
+            {
+                SaveLog("Base64Decode", ex);
+                return string.Empty;
+            }
+        }
+
+        /// <summary>
+        /// 转Int
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public static int ToInt(object obj)
+        {
+            try
+            {
+                return Convert.ToInt32(obj);
+            }
             catch
             {
-                return string.Empty;
+                return 0;
             }
         }
 
@@ -220,7 +264,7 @@ namespace v2rayN
         {
             try
             {
-                int var1 = Convert.ToInt32(oText);
+                int var1 = Utils.ToInt(oText);
                 return true;
             }
             catch
@@ -261,6 +305,20 @@ namespace v2rayN
 
             //清除要验证字符串中的空格
             //ip = ip.Trim();
+            //可能是CIDR
+            if (ip.IndexOf(@"/") > 0)
+            {
+                var cidr = ip.Split('/');
+                if (cidr.Length == 2)
+                {
+                    if (!IsNumberic(cidr[0]))
+                    {
+                        return false;
+                    }
+                    ip = cidr[0];
+                }
+            }
+
 
             //模式字符串
             string pattern = @"^((2[0-4]\d|25[0-5]|[01]?\d\d?)\.){3}(2[0-4]\d|25[0-5]|[01]?\d\d?)$";
@@ -305,6 +363,23 @@ namespace v2rayN
 
         #region 开机自动启动
 
+        private static string autoRunName = "v2rayNAutoRun";
+        private static string autoRunRegPath
+        {
+            get
+            {
+                return @"Software\Microsoft\Windows\CurrentVersion\Run";
+                //if (Environment.Is64BitProcess)
+                //{
+                //    return @"Software\Microsoft\Windows\CurrentVersion\Run";
+                //}
+                //else
+                //{
+                //    return @"SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Run";
+                //}
+            }
+        }
+
         /// <summary>
         /// 开机自动启动
         /// </summary>
@@ -314,17 +389,15 @@ namespace v2rayN
         {
             try
             {
-                RegistryKey regKey = Registry.LocalMachine.CreateSubKey(autoRunRegPath);
                 if (run)
                 {
-                    string exePath = Application.ExecutablePath;
-                    regKey.SetValue(autoRunName, exePath);
+                    string exePath = GetExePath();
+                    RegWriteValue(autoRunRegPath, autoRunName, exePath);
                 }
                 else
                 {
-                    regKey.DeleteValue(autoRunName, false);
+                    RegWriteValue(autoRunRegPath, autoRunName, "");
                 }
-                regKey.Close();
             }
             catch
             {
@@ -340,10 +413,9 @@ namespace v2rayN
         {
             try
             {
-                RegistryKey regKey = Registry.LocalMachine.CreateSubKey(autoRunRegPath);
-                string value = regKey.GetValue(autoRunName).ToString();
+                var value = RegReadValue(autoRunRegPath, autoRunName, "");
                 string exePath = GetExePath();
-                if (value.Equals(exePath))
+                if (value?.Equals(exePath) == true)
                 {
                     return true;
                 }
@@ -360,13 +432,12 @@ namespace v2rayN
         /// <returns></returns>
         public static string GetPath(string fileName)
         {
-            string StartupPath = Application.StartupPath;
+            string startupPath = StartupPath();
             if (Utils.IsNullOrEmpty(fileName))
             {
-                return StartupPath;
+                return startupPath;
             }
-            return string.Format("{0}\\{1}", StartupPath, fileName);
-
+            return Path.Combine(startupPath, fileName);
         }
 
         /// <summary>
@@ -375,9 +446,71 @@ namespace v2rayN
         /// <returns></returns>
         public static string GetExePath()
         {
-            return System.Windows.Forms.Application.ExecutablePath;
+            return Application.ExecutablePath;
         }
 
+        public static string StartupPath()
+        {
+            try
+            {
+                string exePath = GetExePath();
+                return exePath.Substring(0, exePath.LastIndexOf("\\", StringComparison.Ordinal));
+            }
+            catch
+            {
+                return Application.StartupPath;
+            }
+        }
+
+        public static string RegReadValue(string path, string name, string def)
+        {
+            RegistryKey regKey = null;
+            try
+            {
+                regKey = Registry.CurrentUser.OpenSubKey(path, false);
+                string value = regKey?.GetValue(name) as string;
+                if (IsNullOrEmpty(value))
+                {
+                    return def;
+                }
+                else
+                {
+                    return value;
+                }
+            }
+            catch
+            {
+            }
+            finally
+            {
+                regKey?.Close();
+            }
+            return def;
+        }
+
+        public static void RegWriteValue(string path, string name, string value)
+        {
+            RegistryKey regKey = null;
+            try
+            {
+                regKey = Registry.CurrentUser.CreateSubKey(path);
+                if (IsNullOrEmpty(value))
+                {
+                    regKey?.DeleteValue(name, false);
+                }
+                else
+                {
+                    regKey?.SetValue(name, value);
+                }
+            }
+            catch
+            {
+            }
+            finally
+            {
+                regKey?.Close();
+            }
+        }
         #endregion
 
         #region 测速
@@ -389,22 +522,27 @@ namespace v2rayN
         /// <returns></returns>
         public static long Ping(string host)
         {
-            long roundtripTime = 0;
+            long roundtripTime = -1;
             try
             {
-                long totalTime = 0;
                 int timeout = 120;
-                int echoNum = 3;
+                int echoNum = 2;
                 Ping pingSender = new Ping();
                 for (int i = 0; i < echoNum; i++)
                 {
                     PingReply reply = pingSender.Send(host, timeout);
                     if (reply.Status == IPStatus.Success)
                     {
-                        totalTime += reply.RoundtripTime;
+                        if (reply.RoundtripTime < 0)
+                        {
+                            continue;
+                        }
+                        if (roundtripTime < 0 || reply.RoundtripTime < roundtripTime)
+                        {
+                            roundtripTime = reply.RoundtripTime;
+                        }
                     }
                 }
-                roundtripTime = totalTime / echoNum;
             }
             catch
             {
@@ -412,6 +550,29 @@ namespace v2rayN
             }
             return roundtripTime;
         }
+
+        /// <summary>
+        /// 取得本机 IP Address
+        /// </summary>
+        /// <returns></returns>
+        public static List<string> GetHostIPAddress()
+        {
+            List<string> lstIPAddress = new List<string>();
+            try
+            {
+                IPHostEntry IpEntry = Dns.GetHostEntry(Dns.GetHostName());
+                foreach (IPAddress ipa in IpEntry.AddressList)
+                {
+                    if (ipa.AddressFamily == AddressFamily.InterNetwork)
+                        lstIPAddress.Add(ipa.ToString());
+                }
+            }
+            catch
+            {
+            }
+            return lstIPAddress;
+        }
+
 
         #endregion
 
@@ -467,7 +628,7 @@ namespace v2rayN
             string strData = string.Empty;
             try
             {
-                IDataObject data = Clipboard.GetDataObject();             
+                IDataObject data = Clipboard.GetDataObject();
                 if (data.GetDataPresent(DataFormats.Text))
                 {
                     strData = data.GetData(DataFormats.Text).ToString();
@@ -488,7 +649,7 @@ namespace v2rayN
         {
             try
             {
-                Clipboard.SetText(strData);            
+                Clipboard.SetText(strData);
             }
             catch
             {
@@ -510,7 +671,7 @@ namespace v2rayN
             }
             return string.Empty;
         }
-        
+
         #endregion
 
         #region TempPath
@@ -522,9 +683,18 @@ namespace v2rayN
         {
             if (_tempPath == null)
             {
-                Directory.CreateDirectory(Path.Combine(Application.StartupPath, "v2ray_win_temp"));
-                // don't use "/", it will fail when we call explorer /select xxx/ss_win_temp\xxx.log
-                _tempPath = Path.Combine(Application.StartupPath, "v2ray_win_temp");
+                if (ConfigHandler.lazyLoadedConfig().isPortable)
+                {
+                    // don't use "/", it will fail when we call explorer /select xxx/ss_win_temp\xxx.log 
+                    _tempPath = Directory.CreateDirectory(
+                        Path.Combine(StartupPath(), "v2ray_win_temp"))
+                        .FullName;
+                }
+                else {
+                    _tempPath = Directory.CreateDirectory(
+                        Path.Combine(Path.GetTempPath(), @"v2ray\v2ray_win_temp" + Application.ExecutablePath.GetHashCode()))
+                        .FullName;
+                }
             }
             return _tempPath;
         }
@@ -560,5 +730,96 @@ namespace v2rayN
         }
 
         #endregion
+
+        #region Log
+
+        public static void SaveLog(string strContent)
+        {
+            SaveLog("info", new Exception(strContent));
+        }
+        public static void SaveLog(string strTitle, Exception ex)
+        {
+            try
+            {
+                string FilePath = Path.Combine(GetTempPath(), DateTime.Now.ToString("gui-yyyyMMdd") + ".log");
+                if (!File.Exists(FilePath))
+                {
+                    FileStream FsCreate = new FileStream(FilePath, FileMode.Create);
+                    FsCreate.Close();
+                    FsCreate.Dispose();
+                }
+                FileStream FsWrite = new FileStream(FilePath, FileMode.Append, FileAccess.Write);
+                StreamWriter SwWrite = new StreamWriter(FsWrite);
+
+                string strContent = ex.ToString();
+
+                SwWrite.WriteLine(string.Format("{0}{1}[{2}]{3}", "--------------------------------", strTitle, DateTime.Now.ToString("HH:mm:ss"), "--------------------------------"));
+                SwWrite.Write(strContent);
+                SwWrite.WriteLine("\r\n");
+                SwWrite.WriteLine(" ");
+                SwWrite.Flush();
+                SwWrite.Close();
+            }
+            catch { }
+        }
+
+        #endregion
+
+
+        #region scan screen
+
+        public static string ScanScreen()
+        {
+            string ret = string.Empty;
+            try
+            {
+                foreach (Screen screen in Screen.AllScreens)
+                {
+                    using (Bitmap fullImage = new Bitmap(screen.Bounds.Width,
+                                                    screen.Bounds.Height))
+                    {
+                        using (Graphics g = Graphics.FromImage(fullImage))
+                        {
+                            g.CopyFromScreen(screen.Bounds.X,
+                                             screen.Bounds.Y,
+                                             0, 0,
+                                             fullImage.Size,
+                                             CopyPixelOperation.SourceCopy);
+                        }
+                        int maxTry = 10;
+                        for (int i = 0; i < maxTry; i++)
+                        {
+                            int marginLeft = (int)((double)fullImage.Width * i / 2.5 / maxTry);
+                            int marginTop = (int)((double)fullImage.Height * i / 2.5 / maxTry);
+                            Rectangle cropRect = new Rectangle(marginLeft, marginTop, fullImage.Width - marginLeft * 2, fullImage.Height - marginTop * 2);
+                            Bitmap target = new Bitmap(screen.Bounds.Width, screen.Bounds.Height);
+
+                            double imageScale = (double)screen.Bounds.Width / (double)cropRect.Width;
+                            using (Graphics g = Graphics.FromImage(target))
+                            {
+                                g.DrawImage(fullImage, new Rectangle(0, 0, target.Width, target.Height),
+                                                cropRect,
+                                                GraphicsUnit.Pixel);
+                            }
+
+                            var source = new BitmapLuminanceSource(target);
+                            var bitmap = new BinaryBitmap(new HybridBinarizer(source));
+                            QRCodeReader reader = new QRCodeReader();
+                            var result = reader.decode(bitmap);
+                            if (result != null)
+                            {
+                                ret = result.Text;
+                                return ret;
+                            }
+                        }
+                    }
+                }
+            }
+            catch { }
+            return string.Empty;
+        }
+
+        #endregion
+
     }
 }

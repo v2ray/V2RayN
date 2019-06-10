@@ -40,8 +40,9 @@ namespace v2rayN.HttpProxyHandler
                 FileManager.UncompressFile(Utils.GetTempPath("sysproxy.exe"),
                     Environment.Is64BitOperatingSystem ? Resources.sysproxy64_exe : Resources.sysproxy_exe);
             }
-            catch (IOException e)
+            catch (IOException ex)
             {
+                Utils.SaveLog(ex.Message, ex);
 
             }
         }
@@ -62,7 +63,8 @@ namespace v2rayN.HttpProxyHandler
             {
                 arguments = global
                     ? string.Format(
-                        "global {0} <local>;localhost;127.*;10.*;172.16.*;172.17.*;172.18.*;172.19.*;172.20.*;172.21.*;172.22.*;172.23.*;172.24.*;172.25.*;172.26.*;172.27.*;172.28.*;172.29.*;172.30.*;172.31.*;172.32.*;192.168.*",
+                        //"global {0} <local>;localhost;127.*;10.*;172.16.*;172.17.*;172.18.*;172.19.*;172.20.*;172.21.*;172.22.*;172.23.*;172.24.*;172.25.*;172.26.*;172.27.*;172.28.*;172.29.*;172.30.*;172.31.*;172.32.*;192.168.*",
+                        "global {0} <local>;localhost;127.*;10.*;172.16.*;172.17.*;172.18.*;172.19.*;172.20.*;172.21.*;172.22.*;172.23.*;172.24.*;172.25.*;172.26.*;172.27.*;172.28.*;172.29.*;172.30.*;172.31.*;172.32.*",
                         proxyServer)
                     : string.Format("pac {0}", pacURL);
             }
@@ -137,9 +139,9 @@ namespace v2rayN.HttpProxyHandler
                     sw.Flush();
                 }
             }
-            catch (IOException e)
+            catch (IOException ex)
             {
-                //Logging.LogUsefulException(e);
+                Utils.SaveLog(ex.Message, ex);
             }
         }
 
@@ -150,8 +152,9 @@ namespace v2rayN.HttpProxyHandler
                 string configContent = File.ReadAllText(Utils.GetPath(_userWininetConfigFile));
                 _userSettings = JsonConvert.DeserializeObject<SysproxyConfig>(configContent);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Utils.SaveLog(ex.Message, ex);
                 // Suppress all exceptions. finally block will initialize new user config settings.
             }
             finally

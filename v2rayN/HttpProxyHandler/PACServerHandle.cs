@@ -1,8 +1,9 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Text;
-using System.Threading;
 using v2rayN.Mode;
 using v2rayN.Properties;
 using v2rayN.Tool;
@@ -14,93 +15,119 @@ namespace v2rayN.HttpProxyHandler
     /// </summary>
     class PACServerHandle
     {
-        public const string PAC_FILE = "pac.txt";
-
-        private static HttpListener pacLinstener;
+        private static Hashtable httpWebServer = new Hashtable();
+        private static Hashtable pacList = new Hashtable();
 
         public static void Init(Config config)
         {
-            pacLinstener = new HttpListener(); //创建监听实例  
-            pacLinstener.Prefixes.Add(string.Format("http://127.0.0.1:{0}/pac/", Global.pacPort)); //添加监听地址 注意是以/结尾。  
-            pacLinstener.Start(); //允许该监听地址接受请求的传入。  
-            Thread threadpacLinstener = new Thread(new ParameterizedThreadStart(GetPacList)); //创建开启一个线程监听该地址得请求  
-            threadpacLinstener.IsBackground = true;
-            threadpacLinstener.Start(config);
+            InitServer("127.0.0.1");
 
+            if (config.allowLANConn)
+            {
+                List<string> lstIPAddress = Utils.GetHostIPAddress();
+                if (lstIPAddress.Count <= 0)
+                {
+                    return;
+                }
+                foreach (string str in lstIPAddress)
+                {
+                    InitServer(str);
+                }
+            }
         }
+
+        public static void InitServer(string address)
+        {
+            try
+            {
+                if (!pacList.ContainsKey(address))
+                {
+                    pacList.Add(address, GetPacList(address));
+                }
+
+                string prefixes = string.Format("http://{0}:{1}/pac/", address, Global.pacPort);
+                Utils.SaveLog("Webserver prefixes " + prefixes);
+
+                HttpWebServer ws = new HttpWebServer(SendResponse, prefixes);
+                ws.Run();
+
+                if (!httpWebServer.ContainsKey(address) && ws != null)
+                {
+                    httpWebServer.Add(address, ws);
+                }
+            }
+            catch (Exception ex)
+            {
+                Utils.SaveLog("Webserver InitServer " + ex.Message);
+            }
+        }
+
+        public static string SendResponse(HttpListenerRequest request)
+        {
+            try
+            {
+                string[] arrAddress = request.UserHostAddress.Split(':');
+                string address = "127.0.0.1";
+                if (arrAddress.Length > 0)
+                {
+                    address = arrAddress[0];
+                }
+                return pacList[address].ToString();
+            }
+            catch (Exception ex)
+            {
+                Utils.SaveLog("Webserver SendResponse " + ex.Message);
+                return ex.Message;
+            }
+        }
+
 
         public static void Stop()
         {
-            if (pacLinstener != null && pacLinstener.IsListening)
+            try
             {
-                pacLinstener.Abort();
-                pacLinstener = null;
+                if (httpWebServer == null)
+                {
+                    return;
+                }
+                foreach (var key in httpWebServer.Keys)
+                {
+                    Utils.SaveLog("Webserver Stop " + key.ToString());
+                    ((HttpWebServer)httpWebServer[key]).Stop();
+                }
+                httpWebServer.Clear();
+            }
+            catch (Exception ex)
+            {
+                Utils.SaveLog("Webserver Stop " + ex.Message);
             }
         }
 
-        private static void GetPacList(object config)
+        private static string GetPacList(string address)
         {
-            var cfg = config as Config;
             var port = Global.sysAgentPort;
             if (port <= 0)
             {
-                return;
+                return "No port";
             }
-            var proxy = string.Format("PROXY 127.0.0.1:{0};", port);
-            while (pacLinstener != null && pacLinstener.IsListening)
+            try
             {
-                HttpListenerContext requestContext = null;
-                try
+                List<string> lstProxy = new List<string>();
+                lstProxy.Add(string.Format("PROXY {0}:{1};", address, port));
+                var proxy = string.Join("", lstProxy.ToArray());
+
+                string strPacfile = Utils.GetPath(Global.pacFILE);
+                if (!File.Exists(strPacfile))
                 {
-                    requestContext = pacLinstener.GetContext(); //接受到新的请求  
-                    //reecontext 为开启线程传入的 requestContext请求对象  
-                    Thread subthread = new Thread(new ParameterizedThreadStart((reecontext) =>
-                    {
-                        requestContext.Response.StatusCode = 200;
-                        requestContext.Response.ContentType = "application/x-ns-proxy-autoconfig";
-                        requestContext.Response.ContentEncoding = Encoding.UTF8;
-                        if (!File.Exists(PAC_FILE))
-                        {
-                            //TODO:暂时没解决更新PAC列表的问题，用直接解压现有PAC解决
-                            //new PACListHandle().UpdatePACFromGFWList(cfg);
-                            FileManager.UncompressFile(PAC_FILE, Resources.pac_txt);
-                        }
-                        var pac = File.ReadAllText(PAC_FILE, Encoding.UTF8);
-                        pac = pac.Replace("__PROXY__", proxy);
-                        byte[] buffer = System.Text.Encoding.UTF8.GetBytes(pac);
-                        //对客户端输出相应信息.  
-                        requestContext.Response.ContentLength64 = buffer.Length;
-                        System.IO.Stream output = requestContext.Response.OutputStream;
-                        output.Write(buffer, 0, buffer.Length);
-                        //关闭输出流，释放相应资源  
-                        output.Close();
-                    }));
-                    subthread.Start(requestContext); //开启处理线程处理下载文件  
+                    FileManager.UncompressFile(strPacfile, Resources.pac_txt);
                 }
-                catch (HttpListenerException)
-                {
-                    continue;
-                }
-                catch (Exception ex)
-                {
-                    try
-                    {
-                        requestContext.Response.StatusCode = 500;
-                        requestContext.Response.ContentType = "application/text";
-                        requestContext.Response.ContentEncoding = Encoding.UTF8;
-                        byte[] buffer = System.Text.Encoding.UTF8.GetBytes("System Error");
-                        //对客户端输出相应信息.  
-                        requestContext.Response.ContentLength64 = buffer.Length;
-                        System.IO.Stream output = requestContext.Response.OutputStream;
-                        output.Write(buffer, 0, buffer.Length);
-                        //关闭输出流，释放相应资源  
-                        output.Close();
-                    }
-                    catch
-                    {
-                    }
-                }
+                var pac = File.ReadAllText(strPacfile, Encoding.UTF8);
+                pac = pac.Replace("__PROXY__", proxy);
+                return pac;
             }
+            catch
+            { }
+            return "No pac content";
         }
     }
 }

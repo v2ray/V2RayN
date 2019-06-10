@@ -8,6 +8,7 @@ namespace v2rayN.Forms
     public partial class AddServerForm : BaseForm
     {
         public int EditIndex { get; set; }
+        VmessItem vmessItem = null;
 
         public AddServerForm()
         {
@@ -18,10 +19,12 @@ namespace v2rayN.Forms
         {
             if (EditIndex >= 0)
             {
+                vmessItem = config.vmess[EditIndex];
                 BindingServer();
             }
             else
             {
+                vmessItem = new VmessItem();
                 ClearServer();
             }
         }
@@ -31,8 +34,6 @@ namespace v2rayN.Forms
         /// </summary>
         private void BindingServer()
         {
-            VmessItem vmessItem = config.vmess[EditIndex];
-
             txtAddress.Text = vmessItem.address;
             txtPort.Text = vmessItem.port.ToString();
             txtId.Text = vmessItem.id;
@@ -43,7 +44,9 @@ namespace v2rayN.Forms
 
             cmbHeaderType.Text = vmessItem.headerType;
             txtRequestHost.Text = vmessItem.requestHost;
+            txtPath.Text = vmessItem.path;
             cmbStreamSecurity.Text = vmessItem.streamSecurity;
+            cmbAllowInsecure.Text = vmessItem.allowInsecure;
         }
 
 
@@ -63,6 +66,8 @@ namespace v2rayN.Forms
             cmbHeaderType.Text = Global.None;
             txtRequestHost.Text = "";
             cmbStreamSecurity.Text = "";
+            cmbAllowInsecure.Text = "";
+            txtPath.Text = "";
         }
 
 
@@ -90,11 +95,13 @@ namespace v2rayN.Forms
             {
                 cmbHeaderType.Items.Add(Global.TcpHeaderHttp);
             }
-            else if (network.Equals("kcp"))
+            else if (network.Equals("kcp") || network.Equals("quic"))
             {
                 cmbHeaderType.Items.Add("srtp");
                 cmbHeaderType.Items.Add("utp");
                 cmbHeaderType.Items.Add("wechat-video");
+                cmbHeaderType.Items.Add("dtls");
+                cmbHeaderType.Items.Add("wireguard");
             }
             else
             {
@@ -114,41 +121,44 @@ namespace v2rayN.Forms
 
             string headerType = cmbHeaderType.Text;
             string requestHost = txtRequestHost.Text;
+            string path = txtPath.Text;
             string streamSecurity = cmbStreamSecurity.Text;
+            string allowInsecure = cmbAllowInsecure.Text;
 
             if (Utils.IsNullOrEmpty(address))
             {
-                UI.Show("请填写地址");
+                UI.Show(UIRes.I18N("FillServerAddress"));
                 return;
             }
             if (Utils.IsNullOrEmpty(port) || !Utils.IsNumberic(port))
             {
-                UI.Show("请填写正确格式端口");
+                UI.Show(UIRes.I18N("FillCorrectServerPort"));
                 return;
             }
             if (Utils.IsNullOrEmpty(id))
             {
-                UI.Show("请填写用户ID");
+                UI.Show(UIRes.I18N("FillUUID"));
                 return;
             }
             if (Utils.IsNullOrEmpty(alterId) || !Utils.IsNumberic(alterId))
             {
-                UI.Show("请填写正确格式额外ID");
+                UI.Show(UIRes.I18N("FillCorrectAlterId"));
                 return;
             }
 
-            VmessItem vmessItem = new VmessItem();
             vmessItem.address = address;
-            vmessItem.port = Convert.ToInt32(port);
+            vmessItem.port = Utils.ToInt(port);
             vmessItem.id = id;
-            vmessItem.alterId = Convert.ToInt32(alterId);
+            vmessItem.alterId = Utils.ToInt(alterId);
             vmessItem.security = security;
             vmessItem.network = network;
             vmessItem.remarks = remarks;
 
             vmessItem.headerType = headerType;
             vmessItem.requestHost = requestHost.Replace(" ", "");
+            vmessItem.path = path.Replace(" ", "");
             vmessItem.streamSecurity = streamSecurity;
+            vmessItem.allowInsecure = allowInsecure;
 
             if (ConfigHandler.AddServer(ref config, vmessItem, EditIndex) == 0)
             {
@@ -156,7 +166,7 @@ namespace v2rayN.Forms
             }
             else
             {
-                UI.Show("操作失败，请检查重试");
+                UI.Show(UIRes.I18N("OperationFailed"));
             }
         }
 
@@ -199,7 +209,7 @@ namespace v2rayN.Forms
 
             OpenFileDialog fileDialog = new OpenFileDialog();
             fileDialog.Multiselect = false;
-            fileDialog.Filter = "Config|*.json|所有文件|*.*";
+            fileDialog.Filter = "Config|*.json|All|*.*";
             if (fileDialog.ShowDialog() != DialogResult.OK)
             {
                 return;
@@ -233,6 +243,7 @@ namespace v2rayN.Forms
             cmbNetwork.Text = vmessItem.network;
             cmbHeaderType.Text = vmessItem.headerType;
             txtRequestHost.Text = vmessItem.requestHost;
+            txtPath.Text = vmessItem.path;
             cmbStreamSecurity.Text = vmessItem.streamSecurity;
         }
 
@@ -246,7 +257,7 @@ namespace v2rayN.Forms
             ClearServer();
 
             string msg;
-            VmessItem vmessItem = V2rayConfigHandler.ImportFromClipboardConfig(out msg);
+            VmessItem vmessItem = V2rayConfigHandler.ImportFromClipboardConfig(Utils.GetClipboardData(), out msg);
             if (vmessItem == null)
             {
                 UI.Show(msg);
@@ -261,9 +272,22 @@ namespace v2rayN.Forms
             cmbNetwork.Text = vmessItem.network;
             cmbHeaderType.Text = vmessItem.headerType;
             txtRequestHost.Text = vmessItem.requestHost;
+            txtPath.Text = vmessItem.path;
             cmbStreamSecurity.Text = vmessItem.streamSecurity;
         }
         #endregion
 
+        private void cmbStreamSecurity_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            string security = cmbStreamSecurity.Text;
+            if (Utils.IsNullOrEmpty(security))
+            {
+                panTlsMore.Hide();
+            }
+            else
+            {
+                panTlsMore.Show();
+            }
+        }
     }
 }

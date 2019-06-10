@@ -1,8 +1,8 @@
-﻿using Gma.QrCodeNet.Encoding;
-using Gma.QrCodeNet.Encoding.Windows.Render;
-using System.Drawing;
+﻿using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using ZXing;
+using ZXing.QrCode;
 
 namespace v2rayN.Handler
 {
@@ -11,55 +11,26 @@ namespace v2rayN.Handler
     /// </summary>
     public class QRCodeHelper
     {
-        /// <summary>
-        /// 获取二维码
-        /// </summary>
-        /// <param name="strContent">待编码的字符</param>
-        /// <param name="ms">输出流</param>
-        ///<returns>True if the encoding succeeded, false if the content is empty or too large to fit in a QR code</returns>
-        public static bool GetQRCode(string strContent, MemoryStream ms)
-        {
-            try
-            {
-                ErrorCorrectionLevel Ecl = ErrorCorrectionLevel.M; //误差校正水平 
-                string Content = strContent;//待编码内容
-                QuietZoneModules QuietZones = QuietZoneModules.Two;  //空白区域 
-                int ModuleSize = 12;//大小
-                var encoder = new QrEncoder(Ecl);
-                QrCode qr;
-                if (encoder.TryEncode(Content, out qr))//对内容进行编码，并保存生成的矩阵
-                {
-                    var render = new GraphicsRenderer(new FixedModuleSize(ModuleSize, QuietZones));
-                    render.WriteToStream(qr.Matrix, ImageFormat.Png, ms);
-                }
-                else
-                {
-                    return false;
-                }
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        /// <summary>
-        /// 获取二维码
-        /// </summary>
-        /// <param name="strContent"></param>
-        /// <returns></returns>
         public static Image GetQRCode(string strContent)
         {
             Image img = null;
             try
             {
-                using (var ms = new MemoryStream())
-                {
-                    QRCodeHelper.GetQRCode(strContent, ms);
-                    img = Image.FromStream(ms);
-                    return img;
-                }
+                QrCodeEncodingOptions options = new QrCodeEncodingOptions();
+                options.CharacterSet = "UTF-8";
+                options.DisableECI = true; // Extended Channel Interpretation (ECI) 主要用于特殊的字符集。并不是所有的扫描器都支持这种编码。
+                options.ErrorCorrection = ZXing.QrCode.Internal.ErrorCorrectionLevel.M; // 纠错级别
+                options.Width = 500;
+                options.Height = 500;
+                options.Margin = 1;
+                // options.Hints，更多属性，也可以在这里添加。
+
+                BarcodeWriter writer = new BarcodeWriter();
+                writer.Format = BarcodeFormat.QR_CODE;
+                writer.Options = options;
+                Bitmap bmp = writer.Write(strContent);
+                img = (Image)bmp;
+                return img;
             }
             catch
             {

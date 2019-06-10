@@ -19,8 +19,8 @@ namespace v2rayN.HttpProxyHandler
         {
             if (config.listenerType == 2)
             {
-                SysProxyHandle.SetIEProxy(false, false, null, null);
-                PACServerHandle.Stop();
+                //SysProxyHandle.SetIEProxy(false, false, null, null);
+                //PACServerHandle.Stop();
             }
             Update(config, false);
         }
@@ -45,15 +45,29 @@ namespace v2rayN.HttpProxyHandler
                     }
                     if (type == 1)
                     {
-
                         PACServerHandle.Stop();
                         PACFileWatcherHandle.StopWatch();
                         SysProxyHandle.SetIEProxy(true, true, "127.0.0.1:" + port, null);
                     }
-                    else
+                    else if (type == 2)
                     {
                         string pacUrl = GetPacUrl();
                         SysProxyHandle.SetIEProxy(true, false, null, pacUrl);
+                        PACServerHandle.Stop();
+                        PACServerHandle.Init(config);
+                        PACFileWatcherHandle.StartWatch(config);
+                    }
+                    else if (type == 3)
+                    {
+                        PACServerHandle.Stop();
+                        PACFileWatcherHandle.StopWatch();
+                        SysProxyHandle.SetIEProxy(false, false, null, null);
+                    }
+                    else if (type == 4)
+                    {
+                        string pacUrl = GetPacUrl();
+                        SysProxyHandle.SetIEProxy(false, false, null, null);
+                        PACServerHandle.Stop();
                         PACServerHandle.Init(config);
                         PACFileWatcherHandle.StartWatch(config);
                     }
@@ -67,7 +81,7 @@ namespace v2rayN.HttpProxyHandler
             }
             catch (Exception ex)
             {
-                //Logging.LogUsefulException(ex);
+                Utils.SaveLog(ex.Message, ex);
             }
             return true;
         }
@@ -83,7 +97,7 @@ namespace v2rayN.HttpProxyHandler
                 int localPort = config.GetLocalPort("socks");
                 if (localPort > 0)
                 {
-                    PrivoxyHandler.Instance.Start(localPort);
+                    PrivoxyHandler.Instance.Start(localPort, config);
                     if (PrivoxyHandler.Instance.RunningPort > 0)
                     {
                         Global.sysAgent = true;

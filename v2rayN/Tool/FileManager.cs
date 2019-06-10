@@ -17,6 +17,7 @@ namespace v2rayN.Tool
             }
             catch (Exception ex)
             {
+                Utils.SaveLog(ex.Message, ex);
             }
             return false;
         }
@@ -56,6 +57,7 @@ namespace v2rayN.Tool
             }
             catch (Exception ex)
             {
+                Utils.SaveLog(ex.Message, ex);
                 throw ex;
             }
         }

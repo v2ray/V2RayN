@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Net;
 using v2rayN.Mode;
 
 namespace v2rayN.Handler
@@ -9,6 +12,16 @@ namespace v2rayN.Handler
     class ConfigHandler
     {
         private static string configRes = Global.ConfigFileName;
+
+        private static Config lazyLoad = null;
+
+        public static Config lazyLoadedConfig() {
+            if (lazyLoad != null
+                || LoadConfig(ref lazyLoad) == 0) {
+                return lazyLoad;
+            }
+            return null;
+        }
 
         /// <summary>
         /// 载入配置文件
@@ -32,10 +45,6 @@ namespace v2rayN.Handler
                 config.loglevel = "warning";
                 config.vmess = new List<VmessItem>();
 
-                //路由
-                config.chinasites = false;
-                config.chinaip = false;
-
                 //Mux
                 config.muxEnabled = true;
 
@@ -49,8 +58,9 @@ namespace v2rayN.Handler
                 config.inbound = new List<InItem>();
                 InItem inItem = new InItem();
                 inItem.protocol = "socks";
-                inItem.localPort = 1080;
+                inItem.localPort = 10808;
                 inItem.udpEnabled = true;
+                inItem.sniffingEnabled = true;
 
                 config.inbound.Add(inItem);
 
@@ -70,6 +80,14 @@ namespace v2rayN.Handler
                 }
             }
             //路由规则
+            if (Utils.IsNullOrEmpty(config.domainStrategy))
+            {
+                config.domainStrategy = "IPIfNonMatch";
+            }
+            if (Utils.IsNullOrEmpty(config.routingMode))
+            {
+                config.routingMode = "0";
+            }
             if (config.useragent == null)
             {
                 config.useragent = new List<string>();
@@ -94,7 +112,10 @@ namespace v2rayN.Handler
                 config.kcpItem.writeBufferSize = 2;
                 config.kcpItem.congestion = false;
             }
-
+            if (config.uiItem == null)
+            {
+                config.uiItem = new UIItem();
+            }
             //// 如果是用户升级，首次会有端口号为0的情况，不可用，这里处理
             //if (config.pacPort == 0)
             //{
@@ -112,8 +133,16 @@ namespace v2rayN.Handler
             else
             {
                 Global.reloadV2ray = true;
-            }
 
+                //版本升级
+                for (int i = 0; i < config.vmess.Count; i++)
+                {
+                    VmessItem vmessItem = config.vmess[i];
+                    UpgradeServerVersion(ref vmessItem);
+                }
+            }
+            
+            lazyLoad = config;
             return 0;
         }
 
@@ -126,6 +155,8 @@ namespace v2rayN.Handler
         /// <returns></returns>
         public static int AddServer(ref Config config, VmessItem vmessItem, int index)
         {
+            vmessItem.configVersion = 2;
+            vmessItem.configType = (int)EConfigType.Vmess;
             if (index >= 0)
             {
                 //修改
@@ -206,6 +237,8 @@ namespace v2rayN.Handler
             }
 
             VmessItem vmessItem = new VmessItem();
+            vmessItem.configVersion = config.vmess[index].configVersion;
+            vmessItem.configType = config.vmess[index].configType;
             vmessItem.address = config.vmess[index].address;
             vmessItem.port = config.vmess[index].port;
             vmessItem.id = config.vmess[index].id;
@@ -214,8 +247,10 @@ namespace v2rayN.Handler
             vmessItem.network = config.vmess[index].network;
             vmessItem.headerType = config.vmess[index].headerType;
             vmessItem.requestHost = config.vmess[index].requestHost;
+            vmessItem.path = config.vmess[index].path;
             vmessItem.streamSecurity = config.vmess[index].streamSecurity;
-            vmessItem.remarks = string.Format("{0}-副本", config.vmess[index].remarks);
+            vmessItem.remarks = string.Format("{0}-clone", config.vmess[index].remarks);
+
             config.vmess.Add(vmessItem);
 
             ToJsonFile(config);
@@ -277,30 +312,70 @@ namespace v2rayN.Handler
         /// </summary>
         /// <param name="config"></param>
         /// <param name="index"></param>
-        /// <param name="vmessQRCode"></param>
         /// <returns></returns>
-        public static int GetVmessQRCode(Config config, int index, ref VmessQRCode vmessQRCode)
+        public static string GetVmessQRCode(Config config, int index)
         {
             try
             {
+                string url = string.Empty;
+
                 VmessItem vmessItem = config.vmess[index];
+                if (vmessItem.configType == (int)EConfigType.Vmess)
+                {
+                    VmessQRCode vmessQRCode = new VmessQRCode();
+                    vmessQRCode.v = vmessItem.configVersion.ToString();
+                    vmessQRCode.ps = vmessItem.remarks.Trim(); //备注也许很长 ;
+                    vmessQRCode.add = vmessItem.address;
+                    vmessQRCode.port = vmessItem.port.ToString();
+                    vmessQRCode.id = vmessItem.id;
+                    vmessQRCode.aid = vmessItem.alterId.ToString();
+                    vmessQRCode.net = vmessItem.network;
+                    vmessQRCode.type = vmessItem.headerType;
+                    vmessQRCode.host = vmessItem.requestHost;
+                    vmessQRCode.path = vmessItem.path;
+                    vmessQRCode.tls = vmessItem.streamSecurity;
 
-                vmessQRCode = new VmessQRCode();
-                vmessQRCode.ps = vmessItem.remarks.Trim(); //备注也许很长 ;
-                vmessQRCode.add = vmessItem.address;
-                vmessQRCode.port = vmessItem.port.ToString();
-                vmessQRCode.id = vmessItem.id;
-                vmessQRCode.aid = vmessItem.alterId.ToString();
-                vmessQRCode.net = vmessItem.network;
-                vmessQRCode.type = vmessItem.headerType;
-                vmessQRCode.host = vmessItem.requestHost;
-                vmessQRCode.tls = vmessItem.streamSecurity;
+                    url = Utils.ToJson(vmessQRCode);
+                    url = Utils.Base64Encode(url);
+                    url = string.Format("{0}{1}", Global.vmessProtocol, url);
 
-                return 0;
+                }
+                else if (vmessItem.configType == (int)EConfigType.Shadowsocks)
+                {
+                    var remark = string.Empty;
+                    if (!Utils.IsNullOrEmpty(vmessItem.remarks))
+                    {
+                        remark = "#" + WebUtility.UrlEncode(vmessItem.remarks);
+                    }
+                    url = string.Format("{0}:{1}@{2}:{3}",
+                        vmessItem.security,
+                        vmessItem.id,
+                        vmessItem.address,
+                        vmessItem.port);
+                    url = Utils.Base64Encode(url);
+                    url = string.Format("{0}{1}{2}", Global.ssProtocol, url, remark);
+                }
+                else if (vmessItem.configType == (int)EConfigType.Socks)
+                {
+                    var remark = string.Empty;
+                    if (!Utils.IsNullOrEmpty(vmessItem.remarks))
+                    {
+                        remark = "#" + WebUtility.UrlEncode(vmessItem.remarks);
+                    }
+                    url = string.Format("{0}:{1}",
+                        vmessItem.address,
+                        vmessItem.port);
+                    url = Utils.Base64Encode(url);
+                    url = string.Format("{0}{1}{2}", Global.socksProtocol, url, remark);
+                }
+                else
+                {
+                }
+                return url;
             }
             catch
             {
-                return -1;
+                return "";
             }
         }
 
@@ -414,5 +489,307 @@ namespace v2rayN.Handler
             return 0;
         }
 
+        /// <summary>
+        /// 添加自定义服务器
+        /// </summary>
+        /// <param name="config"></param>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
+        public static int AddCustomServer(ref Config config, string fileName)
+        {
+            string newFileName = string.Empty;
+            newFileName = string.Format("{0}.json", Utils.GetGUID());
+            newFileName = Path.Combine(Utils.GetTempPath(), newFileName);
+
+            try
+            {
+                File.Copy(fileName, newFileName);
+            }
+            catch
+            {
+                return -1;
+            }
+
+            VmessItem vmessItem = new VmessItem();
+            vmessItem.address = newFileName;
+            vmessItem.configType = (int)EConfigType.Custom;
+            vmessItem.remarks = string.Format("import custom@{0}", DateTime.Now.ToShortDateString());
+
+            config.vmess.Add(vmessItem);
+            if (config.vmess.Count == 1)
+            {
+                config.index = 0;
+                Global.reloadV2ray = true;
+            }
+
+            ToJsonFile(config);
+
+            return 0;
+        }
+
+        /// <summary>
+        /// 添加服务器或编辑
+        /// </summary>
+        /// <param name="config"></param>
+        /// <param name="vmessItem"></param>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        public static int EditCustomServer(ref Config config, VmessItem vmessItem, int index)
+        {
+            //修改
+            config.vmess[index] = vmessItem;
+            if (config.index.Equals(index))
+            {
+                Global.reloadV2ray = true;
+            }
+
+            ToJsonFile(config);
+
+            return 0;
+        }
+
+        /// <summary>
+        /// 添加服务器或编辑
+        /// </summary>
+        /// <param name="config"></param>
+        /// <param name="vmessItem"></param>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        public static int AddShadowsocksServer(ref Config config, VmessItem vmessItem, int index)
+        {
+            vmessItem.configVersion = 2;
+            vmessItem.configType = (int)EConfigType.Shadowsocks;
+            if (index >= 0)
+            {
+                //修改
+                config.vmess[index] = vmessItem;
+                if (config.index.Equals(index))
+                {
+                    Global.reloadV2ray = true;
+                }
+            }
+            else
+            {
+                //添加
+                config.vmess.Add(vmessItem);
+                if (config.vmess.Count == 1)
+                {
+                    config.index = 0;
+                    Global.reloadV2ray = true;
+                }
+            }
+
+            ToJsonFile(config);
+
+            return 0;
+        }
+
+        /// <summary>
+        /// 添加服务器或编辑
+        /// </summary>
+        /// <param name="config"></param>
+        /// <param name="vmessItem"></param>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        public static int AddSocksServer(ref Config config, VmessItem vmessItem, int index)
+        {
+            vmessItem.configVersion = 2;
+            vmessItem.configType = (int)EConfigType.Socks;
+            if (index >= 0)
+            {
+                //修改
+                config.vmess[index] = vmessItem;
+                if (config.index.Equals(index))
+                {
+                    Global.reloadV2ray = true;
+                }
+            }
+            else
+            {
+                //添加
+                config.vmess.Add(vmessItem);
+                if (config.vmess.Count == 1)
+                {
+                    config.index = 0;
+                    Global.reloadV2ray = true;
+                }
+            }
+
+            ToJsonFile(config);
+
+            return 0;
+        }
+
+        /// <summary>
+        /// 配置文件版本升级
+        /// </summary>
+        /// <param name="vmessItem"></param>
+        /// <returns></returns>
+        public static int UpgradeServerVersion(ref VmessItem vmessItem)
+        {
+            try
+            {
+                if (vmessItem == null
+                    || vmessItem.configVersion == 2)
+                {
+                    return 0;
+                }
+                if (vmessItem.configType == (int)EConfigType.Vmess)
+                {
+                    string path = "";
+                    string host = "";
+                    string[] arrParameter;
+                    switch (vmessItem.network)
+                    {
+                        case "kcp":
+                            break;
+                        case "ws":
+                            //*ws(path+host),它们中间分号(;)隔开
+                            arrParameter = vmessItem.requestHost.Replace(" ", "").Split(';');
+                            if (arrParameter.Length > 0)
+                            {
+                                path = arrParameter[0];
+                            }
+                            if (arrParameter.Length > 1)
+                            {
+                                path = arrParameter[0];
+                                host = arrParameter[1];
+                            }
+                            vmessItem.path = path;
+                            vmessItem.requestHost = host;
+                            break;
+                        case "h2":
+                            //*h2 path
+                            arrParameter = vmessItem.requestHost.Replace(" ", "").Split(';');
+                            if (arrParameter.Length > 0)
+                            {
+                                path = arrParameter[0];
+                            }
+                            if (arrParameter.Length > 1)
+                            {
+                                path = arrParameter[0];
+                                host = arrParameter[1];
+                            }
+                            vmessItem.path = path;
+                            vmessItem.requestHost = host;
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                vmessItem.configVersion = 2;
+            }
+            catch
+            {
+            }
+            return 0;
+        }
+
+        /// <summary>
+        /// 批量添加服务器
+        /// </summary>
+        /// <param name="config"></param>
+        /// <param name="clipboardData"></param>
+        /// <param name="subid"></param>
+        /// <returns></returns>
+        public static int AddBatchServers(ref Config config, string clipboardData, string subid = "")
+        {
+            if (Utils.IsNullOrEmpty(clipboardData))
+            {
+                return -1;
+            }
+            //if (clipboardData.IndexOf("vmess") >= 0 && clipboardData.IndexOf("vmess") == clipboardData.LastIndexOf("vmess"))
+            //{
+            //    clipboardData = clipboardData.Replace("\r\n", "").Replace("\n", "");
+            //}
+            int countServers = 0;
+
+            //string[] arrData = clipboardData.Split(new string[] { "\r\n" }, StringSplitOptions.None);
+            string[] arrData = clipboardData.Split(Environment.NewLine.ToCharArray());
+            foreach (string str in arrData)
+            {
+                string msg;
+                VmessItem vmessItem = V2rayConfigHandler.ImportFromClipboardConfig(str, out msg);
+                if (vmessItem == null)
+                {
+                    continue;
+                }
+                vmessItem.subid = subid;
+                if (vmessItem.configType == (int)EConfigType.Vmess)
+                {
+                    if (AddServer(ref config, vmessItem, -1) == 0)
+                    {
+                        countServers++;
+                    }
+                }
+                else if (vmessItem.configType == (int)EConfigType.Shadowsocks)
+                {
+                    if (AddShadowsocksServer(ref config, vmessItem, -1) == 0)
+                    {
+                        countServers++;
+                    }
+                }
+                else if (vmessItem.configType == (int)EConfigType.Socks)
+                {
+                    if (AddSocksServer(ref config, vmessItem, -1) == 0)
+                    {
+                        countServers++;
+                    }
+                }
+            }
+            if (countServers > 0)
+            {
+                return 0;
+            }
+            return -1;
+        }
+
+        /// <summary>
+        /// save sub
+        /// </summary>
+        /// <param name="config"></param>
+        /// <returns></returns>
+        public static int SaveSubItem(ref Config config)
+        {
+            if (config.subItem == null || config.subItem.Count <= 0)
+            {
+                return -1;
+            }
+
+            foreach (SubItem sub in config.subItem)
+            {
+                if (Utils.IsNullOrEmpty(sub.id))
+                {
+                    sub.id = Utils.GetGUID();
+                }
+            }
+
+            ToJsonFile(config);
+            return 0;
+        }
+
+        /// <summary>
+        /// 移除服务器
+        /// </summary>
+        /// <param name="config"></param>
+        /// <param name="subid"></param>
+        /// <returns></returns>
+        public static int RemoveServerViaSubid(ref Config config, string subid)
+        {
+            if (Utils.IsNullOrEmpty(subid) || config.vmess.Count <= 0)
+            {
+                return -1;
+            }
+            for (int k = config.vmess.Count - 1; k >= 0; k--)
+            {
+                if (config.vmess[k].subid.Equals(subid))
+                {
+                    config.vmess.RemoveAt(k);
+                }
+            }
+
+            ToJsonFile(config);
+            return 0;
+        }
     }
 }

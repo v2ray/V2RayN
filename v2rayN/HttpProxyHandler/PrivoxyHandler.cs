@@ -2,8 +2,12 @@
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.NetworkInformation;
+using System.Net.Sockets;
 using System.Text;
 using System.Windows.Forms;
+using v2rayN.Mode;
 using v2rayN.Properties;
 using v2rayN.Tool;
 
@@ -37,9 +41,9 @@ namespace v2rayN.HttpProxyHandler
                 FileManager.UncompressFile(Utils.GetTempPath("v2ray_privoxy.exe"), Resources.privoxy_exe);
                 FileManager.UncompressFile(Utils.GetTempPath("mgwz.dll"), Resources.mgwz_dll);
             }
-            catch (IOException e)
+            catch (IOException ex)
             {
-                //Logging.LogUsefulException(e);
+                Utils.SaveLog(ex.Message, ex);
             }
         }
 
@@ -79,7 +83,7 @@ namespace v2rayN.HttpProxyHandler
             }
         }
 
-        public void Start(int localPort)
+        public void Start(int localPort, Config config)
         {
             if (_process == null)
             {
@@ -92,7 +96,14 @@ namespace v2rayN.HttpProxyHandler
                 _runningPort = GetFreePort(localPort);
                 privoxyConfig = privoxyConfig.Replace("__SOCKS_PORT__", localPort.ToString());
                 privoxyConfig = privoxyConfig.Replace("__PRIVOXY_BIND_PORT__", _runningPort.ToString());
-                privoxyConfig = privoxyConfig.Replace("__PRIVOXY_BIND_IP__", "0.0.0.0");
+                if (config.allowLANConn)
+                {
+                    privoxyConfig = privoxyConfig.Replace("__PRIVOXY_BIND_IP__", "0.0.0.0");
+                }
+                else
+                {
+                    privoxyConfig = privoxyConfig.Replace("__PRIVOXY_BIND_IP__", "127.0.0.1");
+                }
                 FileManager.ByteArrayToFile(Utils.GetTempPath(_uniqueConfigFile), Encoding.UTF8.GetBytes(privoxyConfig));
 
                 _process = new Process
@@ -142,9 +153,9 @@ namespace v2rayN.HttpProxyHandler
                     p.WaitForExit();
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                //Logging.LogUsefulException(e);
+                Utils.SaveLog(ex.Message, ex);
             }
         }
 
@@ -172,6 +183,7 @@ namespace v2rayN.HttpProxyHandler
             }
             catch (Exception ex)
             {
+                Utils.SaveLog(ex.Message, ex);
                 /*
                  * Sometimes Process.GetProcessesByName will return some processes that
                  * are already dead, and that will cause exceptions here.
@@ -182,23 +194,35 @@ namespace v2rayN.HttpProxyHandler
             }
         }
 
+        private bool CheckIfPortInUse(int port)
+        {
+            IPGlobalProperties ipProperties = IPGlobalProperties.GetIPGlobalProperties();
+            return ipProperties.GetActiveTcpListeners().Any(endPoint => endPoint.Port == port);
+        }
+
         private int GetFreePort(int localPort)
         {
             int defaultPort = 8123;
             try
             {
-                //// TCP stack please do me a favor
-                //TcpListener l = new TcpListener(IPAddress.Loopback, 0);
-                //l.Start();
-                //var port = ((IPEndPoint)l.LocalEndpoint).Port;
-                //l.Stop();
-                //return port;
-                return localPort + 1;
+                // try 5 sibling ports
+                int port = localPort;
+                for (int i = 1; i <= 5; i++) {
+                    if (!CheckIfPortInUse(++port)) {
+                        return port;
+                    }
+                }
+                // Get a free port anyway
+                TcpListener l = new TcpListener(IPAddress.Loopback, 0);
+                l.Start();
+                port = ((IPEndPoint)l.LocalEndpoint).Port;
+                l.Stop();
+                return port;
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
                 // in case access denied
-                //Logging.LogUsefulException(e);
+                Utils.SaveLog(ex.Message, ex);
                 return defaultPort;
             }
         }

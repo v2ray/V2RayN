@@ -15,19 +15,12 @@ namespace v2rayN.Mode
         /// <summary>
         /// 传入连接配置
         /// </summary>
-        public Inbound inbound { get; set; }
+        public List<Inbounds> inbounds { get; set; }
         /// <summary>
         /// 传出连接配置
         /// </summary>
-        public Outbound outbound { get; set; }
-        /// <summary>
-        /// 额外的传入连接配置
-        /// </summary>
-        public List<InboundDetourItem> inboundDetour { get; set; }
-        /// <summary>
-        /// 额外的传出连接配置
-        /// </summary>
-        public List<OutboundDetourItem> outboundDetour { get; set; }
+        public List<Outbounds> outbounds { get; set; }
+
         /// <summary>
         /// DNS 配置
         /// </summary>
@@ -54,7 +47,7 @@ namespace v2rayN.Mode
         public string loglevel { get; set; }
     }
 
-    public class Inbound
+    public class Inbounds
     {
         /// <summary>
         /// 
@@ -71,12 +64,17 @@ namespace v2rayN.Mode
         /// <summary>
         /// 
         /// </summary>
+        public Sniffing sniffing { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
         public Inboundsettings settings { get; set; }
 
         /// <summary>
         /// 
         /// </summary>
         public StreamSettings streamSettings { get; set; }
+
     }
 
     public class Inboundsettings
@@ -113,10 +111,25 @@ namespace v2rayN.Mode
         /// <summary>
         /// 
         /// </summary>
+        public string email { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
         public string security { get; set; }
     }
+    public class Sniffing
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        public bool enabled { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        public List<string> destOverride { get; set; }
+    }
 
-    public class Outbound
+    public class Outbounds
     {
         /// <summary>
         /// 默认值agentout
@@ -146,6 +159,15 @@ namespace v2rayN.Mode
         /// 
         /// </summary>
         public List<VnextItem> vnext { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        public List<ServersItem> servers { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public Response response { get; set; }
     }
 
     public class VnextItem
@@ -163,6 +185,37 @@ namespace v2rayN.Mode
         /// </summary>
         public List<UsersItem> users { get; set; }
     }
+    public class ServersItem
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        public string email { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        public string address { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        public string method { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        public bool ota { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        public string password { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        public int port { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        public int level { get; set; }
+    }
 
     public class Mux
     {
@@ -170,51 +223,6 @@ namespace v2rayN.Mode
         /// 
         /// </summary>
         public bool enabled { get; set; }
-    }
-
-    public class InboundDetourItem
-    {
-        /// <summary>
-        /// 
-        /// </summary>
-        public string port { get; set; }
-        /// <summary>
-        /// 
-        /// </summary>
-        public string listen { get; set; }
-        /// <summary>
-        /// 
-        /// </summary>
-        public string protocol { get; set; }
-        /// <summary>
-        /// 
-        /// </summary>
-        public Inboundsettings settings { get; set; }
-    }
-
-    public class OutboundDetourItem
-    {
-        /// <summary>
-        /// 
-        /// </summary>
-        public string protocol { get; set; }
-        /// <summary>
-        /// 
-        /// </summary>
-        public OutboundDetoursettings settings { get; set; }
-        /// <summary>
-        /// 
-        /// </summary>
-        public string tag { get; set; }
-    }
-
-
-    public class OutboundDetoursettings
-    {
-        /// <summary>
-        /// 
-        /// </summary>
-        public Response response { get; set; }
     }
 
     public class Response
@@ -259,7 +267,7 @@ namespace v2rayN.Mode
         public List<string> domain { get; set; }
     }
 
-    public class Routingsettings
+    public class Routing
     {
         /// <summary>
         /// 
@@ -269,18 +277,6 @@ namespace v2rayN.Mode
         /// 
         /// </summary>
         public List<RulesItem> rules { get; set; }
-    }
-
-    public class Routing
-    {
-        /// <summary>
-        /// 
-        /// </summary>
-        public string strategy { get; set; }
-        /// <summary>
-        /// 
-        /// </summary>
-        public Routingsettings settings { get; set; }
     }
 
     public class StreamSettings
@@ -294,10 +290,10 @@ namespace v2rayN.Mode
         /// </summary>
         public string security { get; set; }
 
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        //public TlsSettings tlsSettings { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        public TlsSettings tlsSettings { get; set; }
 
         /// <summary>
         /// Tcp传输额外设置
@@ -311,6 +307,16 @@ namespace v2rayN.Mode
         /// ws传输额外设置
         /// </summary>
         public WsSettings wsSettings { get; set; }
+        /// <summary>
+        /// h2传输额外设置
+        /// </summary>
+        public HttpSettings httpSettings { get; set; }
+
+        /// <summary>
+        /// QUIC
+        /// </summary>
+        public QuicSettings quicSettings { get; set; }
+        
     }
 
     public class TlsSettings
@@ -319,6 +325,11 @@ namespace v2rayN.Mode
         /// 是否允许不安全连接（用于客户端）
         /// </summary>
         public bool allowInsecure { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public string serverName { get; set; }
     }
 
     public class TcpSettings
@@ -396,5 +407,49 @@ namespace v2rayN.Mode
         /// 
         /// </summary>
         public string path { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public Headers headers { get; set; }
     }
+    public class Headers
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        public string Host { get; set; }
+    }
+
+    public class HttpSettings
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        public string path { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public List<string> host { get; set; }
+
+    }
+
+    public class QuicSettings
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        public string security { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        public string key { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public Header header { get; set; }
+    }
+
 }

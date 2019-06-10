@@ -6,6 +6,10 @@ namespace v2rayN.Mode
     class VmessQRCode
     {
         /// <summary>
+        /// 版本
+        /// </summary>
+        public string v { get; set; }
+        /// <summary>
         /// 备注
         /// </summary>
         public string ps { get; set; }
@@ -37,6 +41,10 @@ namespace v2rayN.Mode
         /// 伪装的域名
         /// </summary>
         public string host { get; set; }
+        /// <summary>
+        /// path
+        /// </summary>
+        public string path { get; set; }
         /// <summary>
         /// 底层传输安全
         /// </summary>

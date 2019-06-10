@@ -17,7 +17,7 @@ namespace v2rayN.HttpProxyHandler
         {
             if (fileSystemWatcher == null)
             {
-                fileSystemWatcher = new FileSystemWatcher(Application.StartupPath);
+                fileSystemWatcher = new FileSystemWatcher(Utils.StartupPath());
                 fileSystemWatcher.Filter = "pac.txt";
                 fileSystemWatcher.NotifyFilter = NotifyFilters.Size;
                 fileSystemWatcher.Changed += (sender, args) =>

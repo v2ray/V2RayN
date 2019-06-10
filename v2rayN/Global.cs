@@ -8,13 +8,26 @@ namespace v2rayN
         /// <summary>
         /// 更新链接
         /// </summary>
-        public const string UpdateUrl = @"https://github.com/v2ray/v2rayN/releases";
-
+        //public const string UpdateUrl = @"https://github.com/2dust/v2rayN/releases";
         /// <summary>
         /// 关于链接
         /// </summary>
-        public const string AboutUrl = @"https://github.com/v2ray/v2rayN";
+        //public const string AboutUrl = @"https://github.com/2dust/v2rayN";
 
+        /// <summary>
+        /// SpeedTestUrl
+        /// </summary>
+        public const string SpeedTestUrl = @"http://speedtest-sfo2.digitalocean.com/10mb.test";
+
+        /// <summary>
+        /// CustomRoutingListUrl
+        /// </summary>
+        public const string CustomRoutingListUrl = @"https://raw.githubusercontent.com/2dust/v2rayCustomRoutingList/master/";
+
+        /// <summary>
+        /// PromotionUrl
+        /// </summary>
+        //public const string PromotionUrl = @"https://1.2345345.xyz/ads.html";
 
         /// <summary>
         /// 本软件配置文件名
@@ -42,12 +55,16 @@ namespace v2rayN
         /// v2ray配置Httpresponse文件名
         /// </summary>
         public const string v2raySampleHttpresponseFileName = "v2rayN.Sample.SampleHttpresponse.txt";
+        /// <summary>
+        /// 空白的pac文件
+        /// </summary>
+        public const string BlankPacFileName = "v2rayN.Sample.BlankPac.txt";
 
 
         /// <summary>
         /// 默认加密方式
         /// </summary>
-        public const string DefaultSecurity = "aes-128-gcm";
+        public const string DefaultSecurity = "auto";
 
         /// <summary>
         /// 默认传输协议
@@ -67,7 +84,7 @@ namespace v2rayN
         /// <summary>
         /// 代理 tag值
         /// </summary>
-        public const string agentTag = "agentout";
+        public const string agentTag = "proxy";
 
         /// <summary>
         /// 直连 tag值
@@ -77,12 +94,44 @@ namespace v2rayN
         /// <summary>
         /// 阻止 tag值
         /// </summary>
-        public const string blockTag = "blockout";
+        public const string blockTag = "block";
 
         /// <summary>
-        /// vmess协议
+        /// vmess
         /// </summary>
         public const string vmessProtocol = "vmess://";
+        /// <summary>
+        /// shadowsocks
+        /// </summary>
+        public const string ssProtocol = "ss://";
+        /// <summary>
+        /// socks
+        /// </summary>
+        public const string socksProtocol = "socks://";
+
+        /// <summary>
+        /// pac
+        /// </summary>
+        public const string pacFILE = "pac.txt";
+
+        /// <summary>
+        /// email
+        /// </summary>
+        public const string userEMail = "t@t.tt";
+
+        /// <summary>
+        /// MyRegPath
+        /// </summary>
+        public const string MyRegPath = "Software\\v2rayNGUI";
+
+        /// <summary>
+        /// Language
+        /// </summary>
+        public const string MyRegKeyLanguage = "CurrentLanguage";
+        /// <summary>
+        /// Icon
+        /// </summary>
+        public const string CustomIconName = "v2ray.ico";
 
         #endregion
 
@@ -97,7 +146,7 @@ namespace v2rayN
         /// 是否开启全局代理(http)
         /// </summary>
         public static bool sysAgent { get; set; }
-        
+
         /// <summary>
         /// socks端口号
         /// </summary>
@@ -112,7 +161,6 @@ namespace v2rayN
         /// PAC监听端口号
         /// </summary>
         public static int pacPort { get; set; }
-
 
         #endregion
 
