@@ -2,4 +2,6 @@
 
 A Windows GUI client for V2Ray.
 
-This project is currently not maintained. Please contact admin if you'd like to contribute to it.
+Initially forked from [v2ray/V2RayN](https://github.com/v2ray/V2RayN), then adopted all changes from [2dust/v2rayN](https://github.com/2dust/v2rayN).
+
+The default icon has been changed back to the `Project V Logo`.
